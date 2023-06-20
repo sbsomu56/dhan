@@ -20,14 +20,17 @@ def get_ltp(security_id):
     security_id: string, default=None
         security_id based on api-scrip-master.csv file
     """
-  df = dhan.intraday_daily_minute_charts(security_id=security_id,
-                                         exchange_segment='NSE_FNO',
-                                         instrument_type='OPTIDX')
+  try:
+    df = dhan.intraday_daily_minute_charts(security_id=security_id,
+                                           exchange_segment='NSE_FNO',
+                                           instrument_type='OPTIDX')
 
-  df = pd.DataFrame(df['data'])
-  df['start_Time'] = df['start_Time'].map(
-    lambda x: dhan.convert_to_date_time(x))
-  return df.iloc[-1]['close']
+    df = pd.DataFrame(df['data'])
+    df['start_Time'] = df['start_Time'].map(
+      lambda x: dhan.convert_to_date_time(x))
+    return df.iloc[-1]['close']
+  except:
+    return 0
 
 
 #================#
@@ -58,6 +61,11 @@ def positions():
   return render_template('positions.html',
                          tables=[df.to_html(classes='data')],
                          titles=df.columns.values)
+
+
+@app.route('/screener-15-ema')
+def screener_15_ema():
+  return render_template('screener_15_ema.html')
 
 
 if __name__ == "__main__":
