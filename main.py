@@ -15,20 +15,21 @@ app = Flask(__name__)
 
 
 @app.route('/')
-def hello_world():
+def home():
   positions = dhan.get_positions()['data']
   df = pd.DataFrame(positions)
   df = df[position_col]
-  # return render_template('table.html',
-  #                        tables=[df.to_html(classes='data')],
-  #                        titles=df.columns.values)
-  # return render_template('home.html',
-  #                        nav_bar=render_template('navbar.html'),
-  #                        positions=render_template(
-  #                          'table.html',
-  #                          tables=[df.to_html(classes='data')],
-  #                          titles=df.columns.values))
-  return render_template('navbar.html')
+  return render_template('home.html')
+
+
+@app.route('/positions')
+def positions():
+  positions = dhan.get_positions()['data']
+  df = pd.DataFrame(positions)
+  df = df[position_col]
+  return render_template('positions.html',
+                         tables=[df.to_html(classes='data')],
+                         titles=df.columns.values)
 
 
 if __name__ == "__main__":
