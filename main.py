@@ -148,13 +148,37 @@ def get_positions():
 @app.route('/screener-5-ema', methods=['POST', 'GET'])
 def screener_5_ema():
   if request.method == 'POST':
-    date = request.form.get('date')
+    date0 = request.form.get('date').replace('/', '-')
+    date0 = date0[-4:] + "-" + date0[:2] + "-" + date0[3:5]
     holdings = pd.DataFrame(dhan.get_holdings()['data'])
     holdings['LTP'] = holdings['securityId'].map(lambda x: get_ltp(x))
+    date = date0  #"2023-06-21"
+
+    stock_list = holdings.loc[:, 'tradingSymbol']
+
+    # df to store entry and stop-loss:
+    data = []
+
+    for indicator in tqdm(stock_list):
+      time.sleep(0.2)
+
+      try:
+        df = dhan.historical_minute_charts(indicator, 'NSE_EQ', 'EQUITY', 0,
+                                           '2022-01-01', date)['data']
+        df = ConvertDailyToWeekly(df)
+        t0 = df.iloc[-2]
+        if (t0['ema'] < t0['low']):
+          data.append({"TICKER": indicator, "EXIT": t0['low']})
+          #print("5 EMA triggered for stock: ",indicator)
+      except:
+        print('Error in data fetching for ', indicator)
+
+    data = pd.DataFrame(data)
 
     return render_template('screener_5_ema.html',
-                           tables=[holdings.to_html(classes='data')],
-                           titles=holdings.columns.values)
+                           tables=[data.to_html(classes='data')],
+                           titles=data.columns.values,
+                           date0=date0)
   else:
     return render_template('screener_5_ema.html')
 

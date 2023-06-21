@@ -7,12 +7,13 @@
       <div class="col md-2">
         <form action="#" method="POST">
           <p>Date</p>
-          <p><input type="text" name="Date" id="date" class="form-control"/></p>
+          <p>{{date0}}</p>
+          <p><input type="text" name="date" id="date" class="form-control"/></p>
           <p><input type="submit" value="submit "/></p>
         </form>
         
       </div>
-
+    
       <div class="col md-8">
         {% for table in tables %}
                   {{titles[loop.index]}}
@@ -29,7 +30,9 @@
   <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
   <script>
   $( function() {
-    $( "#date" ).datepicker();
+    var dateTypeVar = $('#date').datepicker();
+    $.datepicker.formatDate('yy-mm-dd', dateTypeVar);
+    // $( "#date" ).datepicker(dateFormat: 'YY-mm-dd' );
   } );
   </script>
 </body>
