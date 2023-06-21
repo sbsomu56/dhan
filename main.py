@@ -71,8 +71,8 @@ def ConvertDailyToWeekly(df):
 #================#
 # cols in positions:
 position_col = [
-  'tradingSymbol', 'securityId', 'positionType', 'buyAvg', 'buyQty', 'TYPE',
-  'LTP', 'PnL'
+  'tradingSymbol', 'securityId', 'positionType', 'buyAvg', 'buyQty', 'LTP',
+  'PnL'
 ]
 
 app = Flask(__name__)
@@ -87,12 +87,25 @@ def home():
 def positions():
   positions = dhan.get_positions()['data']
   df = pd.DataFrame(positions)
-  df = df[df['securityId'] != '10176']
 
-  df['TYPE'] = df['netQty'].map(lambda x: "BUY" if x > 0 else "SELL")
   df['LTP'] = df['securityId'].map(lambda x: get_ltp(x))
 
-  df['PnL'] = (df['LTP'] - df['buyAvg']) * df['buyQty']
+  # df['PnL'] = (df['LTP'] - df['buyAvg']) * df['buyQty']
+
+  idx_long = df['positionType'] == 'LONG'
+  df.loc[idx_long,
+         'PnL'] = (df.loc[idx_long, 'LTP'] * df.loc[idx_long, 'buyQty'] -
+                   df.loc[idx_long, 'dayBuyValue'])
+
+  idx_short = df['positionType'] == 'SHORT'
+  df.loc[idx_short,
+         'PnL'] = (-df.loc[idx_short, 'LTP'] * df.loc[idx_short, 'sellQty'] +
+                   df.loc[idx_short, 'sellAvg'])
+
+  idx_closed = df['positionType'] == 'CLOSED'
+  df.loc[idx_closed, 'PnL'] = (-df.loc[idx_closed, 'dayBuyValue'] +
+                               df.loc[idx_closed, 'daySellValue'])
+
   df = df[position_col]
   return render_template('positions.html',
                          tables=[df.to_html(classes='data')],
