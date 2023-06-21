@@ -46,7 +46,7 @@ def get_ltp(security_id):
       lambda x: dhan.convert_to_date_time(x))
     return df.iloc[-1]['close']
   except:
-    return 0
+    return None
 
 
 # 02. ConvertDailyToWeekly
@@ -148,7 +148,9 @@ def get_positions():
 @app.route('/screener-5-ema')
 def screener_5_ema():
   holdings = pd.DataFrame(dhan.get_holdings()['data'])
-  return render_template('screener_15_ema.html',
+  holdings['LTP'] = holdings['securityId'].map(lambda x: get_ltp(x))
+
+  return render_template('screener_5_ema.html',
                          tables=[holdings.to_html(classes='data')],
                          titles=holdings.columns.values)
 
