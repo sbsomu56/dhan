@@ -161,6 +161,23 @@ python-versions = "*"
 numpy = "*"
 
 [[package]]
+name = "tqdm"
+version = "4.65.0"
+description = "Fast, Extensible Progress Meter"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+colorama = {version = "*", markers = "platform_system == \"Windows\""}
+
+[package.extras]
+dev = ["py-make (>=0.1.0)", "twine", "wheel"]
+notebook = ["ipywidgets (>=6)"]
+slack = ["slack-sdk"]
+telegram = ["requests"]
+
+[[package]]
 name = "tzdata"
 version = "2023.3"
 description = "Provider of IANA time zone data"
@@ -185,7 +202,7 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "24b9052adbbb729847887cb985902bd4d5f02770e85ea867a506bfd041e131d5"
+content-hash = "4223d195913af8a7f0a89661e75097412a3fa68718889cf5160d0483a34d0d34"
 
 [metadata.files]
 blinker = []
@@ -201,5 +218,6 @@ python-dateutil = []
 pytz = []
 six = []
 ta-lib-bin = []
+tqdm = []
 tzdata = []
 werkzeug = []
