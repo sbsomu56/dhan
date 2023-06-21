@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 import os
 import pandas as pd
 from dhanhq import dhanhq
@@ -145,14 +145,18 @@ def get_positions():
   return jsonify(df)
 
 
-@app.route('/screener-5-ema')
+@app.route('/screener-5-ema', methods=['POST', 'GET'])
 def screener_5_ema():
-  holdings = pd.DataFrame(dhan.get_holdings()['data'])
-  holdings['LTP'] = holdings['securityId'].map(lambda x: get_ltp(x))
+  if request.method == 'POST':
+    date = request.form.get('date')
+    holdings = pd.DataFrame(dhan.get_holdings()['data'])
+    holdings['LTP'] = holdings['securityId'].map(lambda x: get_ltp(x))
 
-  return render_template('screener_5_ema.html',
-                         tables=[holdings.to_html(classes='data')],
-                         titles=holdings.columns.values)
+    return render_template('screener_5_ema.html',
+                           tables=[holdings.to_html(classes='data')],
+                           titles=holdings.columns.values)
+  else:
+    return render_template('screener_5_ema.html')
 
 
 @app.route('/screener-15-ema')
