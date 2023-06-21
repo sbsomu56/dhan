@@ -25,10 +25,14 @@ def get_ltp(security_id):
         security_id based on api-scrip-master.csv file
     """
   try:
-    df1 = script_master[script_master['SEM_SMST_SECURITY_ID'] == security_id]
+    df1 = script_master[script_master['SEM_SMST_SECURITY_ID'] == int(
+      security_id)]
+    instrument_type = df1['SEM_INSTRUMENT_NAME'].iloc[0]
 
-    instrument_type = df1['SEM_INSTRUMENT_NAME'].value
-    exchange_segment = lambda x: "NSE_FNO" if instrument_type == "EQUITY" else "NSE_EQ"
+    if instrument_type != "EQUITY":
+      exchange_segment = 'NSE_FNO'
+    else:
+      exchange_segment = 'NSE_EQ'
 
     df = dhan.intraday_daily_minute_charts(security_id=security_id,
                                            exchange_segment=exchange_segment,
@@ -83,6 +87,8 @@ def home():
 def positions():
   positions = dhan.get_positions()['data']
   df = pd.DataFrame(positions)
+  df = df[df['securityId'] != '10176']
+
   df['TYPE'] = df['netQty'].map(lambda x: "BUY" if x > 0 else "SELL")
   df['LTP'] = df['securityId'].map(lambda x: get_ltp(x))
 
