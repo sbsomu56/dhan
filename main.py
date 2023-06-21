@@ -145,9 +145,17 @@ def get_positions():
   return jsonify(df)
 
 
+@app.route('/screener-5-ema')
+def screener_5_ema():
+  holdings = pd.DataFrame(dhan.get_holdings()['data'])
+  return render_template('screener_15_ema.html',
+                         tables=[holdings.to_html(classes='data')],
+                         titles=holdings.columns.values)
+
+
 @app.route('/screener-15-ema')
 def screener_15_ema():
-  date = "2023-06-09"
+  date = "2023-06-21"
   all_stocks = pd.concat([nifty50, niftynext50], ignore_index=True)
   stock_list = all_stocks.loc[1:, 'Symbol']
 
