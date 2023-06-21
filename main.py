@@ -2,11 +2,15 @@ from flask import Flask, render_template
 import os
 import pandas as pd
 from dhanhq import dhanhq
+# import talib
 
 # Create DHANHQ object for sourcing data:
 client_id = os.getenv('DHAN_CLIENT_ID')
 access_token = os.getenv('DHAN_API_KEY')
 dhan = dhanhq(client_id, access_token)
+
+# load api-script-master
+script_master = pd.read_csv('data/api-scrip-master.csv')
 
 
 # FUNCTIONS:
@@ -21,10 +25,14 @@ def get_ltp(security_id):
         security_id based on api-scrip-master.csv file
     """
   try:
-    df = dhan.intraday_daily_minute_charts(security_id=security_id,
-                                           exchange_segment='NSE_FNO',
-                                           instrument_type='OPTIDX')
+    df1 = script_master[script_master['SEM_SMST_SECURITY_ID'] == security_id]
 
+    instrument_type = df1['SEM_INSTRUMENT_NAME'].value
+    exchange_segment = lambda x: "NSE_FNO" if instrument_type == "EQUITY" else "NSE_EQ"
+
+    df = dhan.intraday_daily_minute_charts(security_id=security_id,
+                                           exchange_segment=exchange_segment,
+                                           instrument_type=instrument_type)
     df = pd.DataFrame(df['data'])
     df['start_Time'] = df['start_Time'].map(
       lambda x: dhan.convert_to_date_time(x))
@@ -33,12 +41,34 @@ def get_ltp(security_id):
     return 0
 
 
+# 02. ConvertDailyToWeekly
+def ConvertDailyToWeekly(df):
+  df = pd.DataFrame(df)
+  df['start_Time'] = df['start_Time'].apply(
+    lambda x: dhan.convert_to_date_time(x))
+  df['Date'] = pd.to_datetime(df['start_Time'])
+  df['Week_Number'] = df['Date'].dt.isocalendar().week
+  df['Year'] = df['Date'].dt.isocalendar().year
+  df = df.groupby(['Year', 'Week_Number']).agg({
+    'Date': 'min',
+    'open': 'first',
+    'high': 'max',
+    'low': 'min',
+    'close': 'last',
+    'volume': 'sum'
+  })
+  df['ema'] = talib.EMA(df['close'], timeperiod=5)
+  df = df.set_index('Date')
+  return df
+
+
 #================#
 #   PARAMETERS   #
 #================#
 # cols in positions:
 position_col = [
-  'tradingSymbol', 'securityId', 'positionType', 'buyAvg', 'buyQty'
+  'tradingSymbol', 'securityId', 'positionType', 'buyAvg', 'buyQty', 'TYPE',
+  'LTP', 'PnL'
 ]
 
 app = Flask(__name__)
@@ -53,11 +83,11 @@ def home():
 def positions():
   positions = dhan.get_positions()['data']
   df = pd.DataFrame(positions)
-  df = df[df['securityId'] != '10176']
-  df = df[position_col]
+  df['TYPE'] = df['netQty'].map(lambda x: "BUY" if x > 0 else "SELL")
   df['LTP'] = df['securityId'].map(lambda x: get_ltp(x))
-  df['PnL'] = (df['LTP'] - df['buyAvg']) * df['buyQty']
 
+  df['PnL'] = (df['LTP'] - df['buyAvg']) * df['buyQty']
+  df = df[position_col]
   return render_template('positions.html',
                          tables=[df.to_html(classes='data')],
                          titles=df.columns.values)

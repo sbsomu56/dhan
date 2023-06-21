@@ -150,6 +150,17 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
+name = "ta-lib-bin"
+version = "0.4.26"
+description = "Python wrapper for TA-Lib"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+numpy = "*"
+
+[[package]]
 name = "tzdata"
 version = "2023.3"
 description = "Provider of IANA time zone data"
@@ -174,7 +185,7 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "725a9998be54215a8e80ce4751a49ef575eda3c26475a573b94cc51345f849c8"
+content-hash = "24b9052adbbb729847887cb985902bd4d5f02770e85ea867a506bfd041e131d5"
 
 [metadata.files]
 blinker = []
@@ -189,5 +200,6 @@ pandas = []
 python-dateutil = []
 pytz = []
 six = []
+ta-lib-bin = []
 tzdata = []
 werkzeug = []
