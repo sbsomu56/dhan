@@ -161,6 +161,17 @@ python-versions = "*"
 numpy = "*"
 
 [[package]]
+name = "talib-binary"
+version = "0.4.19"
+description = "Python wrapper for TA-Lib"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+numpy = "*"
+
+[[package]]
 name = "tqdm"
 version = "4.65.0"
 description = "Fast, Extensible Progress Meter"
@@ -202,7 +213,7 @@ watchdog = ["watchdog (>=2.3)"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "4223d195913af8a7f0a89661e75097412a3fa68718889cf5160d0483a34d0d34"
+content-hash = "a558b83f356cd492a0d75487b360cd5ccb08b73124aaeaef1d493cc82060b846"
 
 [metadata.files]
 blinker = []
@@ -218,6 +229,7 @@ python-dateutil = []
 pytz = []
 six = []
 ta-lib-bin = []
+talib-binary = []
 tqdm = []
 tzdata = []
 werkzeug = []

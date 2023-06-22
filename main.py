@@ -117,7 +117,7 @@ def positions():
                          titles=df.columns.values)
 
 
-@app.route('/get-positions')
+@app.route('/get-positions',methods=['POST','GET'])
 def get_positions():
   positions = dhan.get_positions()['data']
   df = pd.DataFrame(positions)
@@ -174,7 +174,7 @@ def screener_5_ema():
         print('Error in data fetching for ', indicator)
 
     data = pd.DataFrame(data)
-
+    data = holdings
     return render_template('screener_5_ema.html',
                            tables=[data.to_html(classes='data')],
                            titles=data.columns.values,
